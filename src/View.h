@@ -21,7 +21,7 @@ class View {
 private:
     Adafruit_ILI9341* tft;
 
-    void drawFlame();
+    void drawFlame(bool shouldShow);
 
 public:
 
@@ -40,5 +40,5 @@ public:
 
     void refresh();
 
-    void drawText(int16_t x, int16_t y, int16_t colour, String text);
+    void drawText(short x, short y, short colour, String text);
 };

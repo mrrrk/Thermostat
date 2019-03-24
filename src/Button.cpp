@@ -1,6 +1,6 @@
 #include "Button.h"
 
-Button::Button(Adafruit_ILI9341* tft, int16_t direction, int16_t x1, int16_t y1, int16_t x2, int16_t y2){
+Button::Button(Adafruit_ILI9341* tft, short direction, short x1, short y1, short x2, short y2){
     this->tft = tft;
     this->lastTouchWhen = 0;
     this->direction = direction;    
@@ -12,10 +12,10 @@ Button::Button(Adafruit_ILI9341* tft, int16_t direction, int16_t x1, int16_t y1,
 
 void Button::render() {
     // to do
-    int16_t width = this->x2 - this->x1;
-    int16_t height = this->y2 - this->y1;
+    short width = this->x2 - this->x1;
+    short height = this->y2 - this->y1;
 
-    int16_t bg = this->lastTouchWhen > 0 ? 0x630C : 0x0000;
+    short bg = this->lastTouchWhen > 0 ? 0x630C : 0x0000;
 
     //http://www.barth-dev.de/online/rgb565-color-picker/
     tft->fillRoundRect(this->x1, this->y1, width, height, 4, bg);
@@ -25,12 +25,12 @@ void Button::render() {
 }
 
 void Button::drawArrow() {
-    int16_t width = this->x2 - this->x1;
-    int16_t height = this->y2 - this->y1;
-    int16_t uw = width / 6; // unit = sixth of width
-    int16_t uh = height / 6; // unit = sixth of height
-    int16_t i;
-    struct Point points[4] = {{ 3 * uw, uh }, { uw, 3 * uh }, { 5 * uw, 3 * uh }, { 2 * uw, 3 * uh }};
+    short width = this->x2 - this->x1;
+    short height = this->y2 - this->y1;
+    short uw = width / (short)6; // unit = sixth of width
+    short uh = height / (short)6; // unit = sixth of height
+    short i;
+    struct Point points[4] = {{ (short)3 * uw, uh }, { uw, (short)3 * uh }, { (short)5 * uw, (short)3 * uh }, { (short)2 * uw, (short)3 * uh }};
     for(i = 0; i < 4; i++){
         // flip y coords if down
         if(this->direction == -1) {

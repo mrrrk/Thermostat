@@ -6,8 +6,6 @@ DHT dht(DHTPIN, DHTTYPE);
 
 View* view;
 Model* model;
-//TODO - put this in model...
-SensorReading lastReading;
 
 void setup() {
     // initialize digital pin LED_BUILTIN as an output.
@@ -45,7 +43,7 @@ void setup() {
     dht.begin();
 }
 
-void onClicked(int16_t direction, unsigned long diff) {
+void onClicked(short direction, unsigned long diff) {
     Serial.print("CLICKED ");
     Serial.println(direction);
     Serial.print("  diff= ");
@@ -56,44 +54,28 @@ void onClicked(int16_t direction, unsigned long diff) {
     view->refresh();
 }
 
-SensorReading readSensor() {
-    SensorReading reading = { 0, 0.0f, 0.0f };
-    reading.humidity = dht.readHumidity();
-    reading.temperature =  dht.readTemperature(false);
-    reading.when = millis();
-    return reading;
-}
+//void readSensor() {
+//     model->newReading(millis(), dht.readTemperature(false), dht.readHumidity());
+// }
 
 // the loop function runs over and over again forever
 void loop() {
    
     // check every second and refresh if changed
-    unsigned long now = millis();
-    if(now - lastReading.when > 1000) {
-        Serial.print(" now = ");
-        Serial.print(now);
-        Serial.print(" last = ");
-        Serial.print(lastReading.when);
-        Serial.print(" diff = ");
-        Serial.print(now - lastReading.when);
+    if(model->isTimeForNewReading(millis())) {
         Serial.println(" check sensor... ");
-        
-        SensorReading newReading = readSensor();
-        if(lastReading.temperature != newReading.temperature || lastReading.humidity != newReading.humidity) {
-            model->currentTemperature = newReading.temperature;
-            model->currentHumidity = newReading.humidity;
-            
+        // read sensor
+        if(model->didJustChange(millis(), dht.readTemperature(false), dht.readHumidity())) {
             view->refresh();
             Serial.println("reading changed");
         }
-        lastReading = newReading;
     }
 
     while(!touchScreen.bufferEmpty()) {
         TS_Point point = touchScreen.getPoint();
 
         // swap x and y because of rotated screen
-        int16_t y = point.x;
+        short y = point.x;
         point.x = point.y;
         point.y = y;
 

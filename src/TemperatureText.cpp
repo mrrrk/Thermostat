@@ -1,6 +1,6 @@
 #include "TemperatureText.h"
 
-TemperatureText::TemperatureText(Adafruit_ILI9341* tft, int16_t x, int16_t y, int16_t colour, unsigned char decimalPlaces) {
+TemperatureText::TemperatureText(Adafruit_ILI9341* tft, short x, short y, short colour, unsigned char decimalPlaces) {
     this->tft = tft;
     this->x = x;
     this->y = y;
@@ -16,8 +16,8 @@ void TemperatureText::render() {
     String text = String(this->temperature, this->decimalPlaces);
     text = String(text + "  C");
 
-    int16_t  boundsX, boundsY;
-    uint16_t boundsW, boundsH;
+    short  boundsX, boundsY;
+    ushort boundsW, boundsH;
     tft->getTextBounds(text, x, y, &boundsX, &boundsY, &boundsW, &boundsH);
 
     //tft->fillRect(this->x - 2, this->y - 2, boundsW + 4, boundsH + 4, 0);

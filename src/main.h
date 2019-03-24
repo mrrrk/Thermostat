@@ -23,12 +23,6 @@
 #define DHTTYPE DHT22
 #define DHTPIN 27     // what digital pin we're connected to
 
-void onClicked(int16_t direction, unsigned long diff);
+void onClicked(short direction, unsigned long diff);
 
-struct SensorReading {
-    unsigned long when;
-    float temperature;
-    float humidity;
-};
-
-SensorReading readSensor();
+void readSensor();

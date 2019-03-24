@@ -9,15 +9,15 @@
 class TemperatureText {
 private:
     Adafruit_ILI9341* tft;
-    int16_t x;
-    int16_t y;
-    int16_t colour;
+    short x;
+    short y;
+    short colour;
     unsigned char decimalPlaces;
 
     void drawDegreeCircle();
 
 public:
-    TemperatureText(Adafruit_ILI9341* tft, int16_t x, int16_t y, int16_t colour, unsigned char decimalPlaces);
+    TemperatureText(Adafruit_ILI9341* tft, short x, short y, short colour, unsigned char decimalPlaces);
     float temperature;
     void render();
 };

@@ -9,11 +9,11 @@ class Button {
 
 private:
     Adafruit_ILI9341* tft;
-    int16_t direction; // 1 or -1 = up or down
-    int16_t x1;
-    int16_t y1;
-    int16_t x2;
-    int16_t y2;
+    short direction; // 1 or -1 = up or down
+    short x1;
+    short y1;
+    short x2;
+    short y2;
     TS_Point lastTouchPoint;
     unsigned long lastTouchWhen;
 
@@ -21,10 +21,10 @@ private:
     
 public:
 
-    Button(Adafruit_ILI9341* tft, int16_t id, int16_t x1, int16_t y1, int16_t x2, int16_t y2);
+    Button(Adafruit_ILI9341* tft, short id, short x1, short y1, short x2, short y2);
 
     // function pointer as callback when button clicked
-    void (*clicked)(int16_t, unsigned long);
+    void (*clicked)(short, unsigned long);
 
     void render();
 

@@ -4,8 +4,8 @@
 #define CLIONTEST_POINT_H
 
 struct Point {
-    int16_t x;
-    int16_t y;
+    short x;
+    short y;
 };
 
 #endif //CLIONTEST_POINT_H

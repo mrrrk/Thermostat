@@ -5,6 +5,7 @@
 #include <Adafruit_ILI9341.h>
 #include <Adafruit_STMPE610.h>
 #include <Fonts/FreeSans9pt7b.h>
+#include <Fonts/FreeSans12pt7b.h>
 
 // Color definitions
 #define BLACK    0x0000
@@ -40,5 +41,7 @@ public:
 
     void refresh();
 
-    void drawText(short x, short y, short colour, String text);
+    void drawText9pt(short x, short y, short colour, String text);
+
+    void drawText12pt(short x, short y, short colour, String text);
 };

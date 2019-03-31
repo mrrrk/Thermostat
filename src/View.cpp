@@ -5,8 +5,8 @@ View::View(Adafruit_ILI9341* tft, Model* model) {
     this->tft = tft;
     this->model = model;
   
-    this->upButton = new Button(tft, 1, 200, 15, 305, 115);
-    this->downButton = new Button(tft, -1, 200, 130, 305, 230);
+    this->upButton = new Button(tft, 1, 210, 15, 305, 115);
+    this->downButton = new Button(tft, -1, 210, 130, 305, 230);
     this->setPointTemperatureText = new TemperatureText(tft, 10, 40, WHITE, 0);
     this->currentTemperatureText = new TemperatureText(tft, 10, 155, RED, 1);
 }
@@ -27,11 +27,12 @@ void View::refresh() {
     this->setPointTemperatureText->render();
     this->currentTemperatureText->render();
     this->drawFlame(this->model->isCold());
-    this->drawText(10,15, WHITE, "Set point");
-    this->drawText(10,130, RED, "Current temperature");
+    this->drawText9pt(10,15, WHITE, "Set point");
+    this->drawText12pt(10,100, WHITE, this->model->lastTimeText);
+    this->drawText9pt(10,130, RED, "Current temperature");
     String humidText = String(this->model->currentHumidity, 0);
     humidText = "Humidity " + humidText + "%";
-    this->drawText(10,215, MAGENTA, humidText);
+    this->drawText12pt(10,215, RED, humidText);
 }
 
 void View::drawFlame(bool shouldShow) {
@@ -65,11 +66,20 @@ void View::drawFlame(bool shouldShow) {
     tft->drawBitmap(x, y, flameYellow, 32, 32, YELLOW);
 }
 
-void View::drawText(short x, short y, short colour, String text) {
+void View::drawText9pt(short x, short y, short colour, String text) {
     tft->setTextSize(1);
     tft->setTextColor(colour);
     tft->setFont(&FreeSans9pt7b);
     tft->fillRect(x - 2, y - 4, 180, 18, BLACK);
+    tft->setCursor(x, y + 10);
+    tft->print(text);
+}
+
+void View::drawText12pt(short x, short y, short colour, String text) {
+    tft->setTextSize(1);
+    tft->setTextColor(colour);
+    tft->setFont(&FreeSans12pt7b);
+    tft->fillRect(x - 2, y - 6, 180, 20, BLACK);
     tft->setCursor(x, y + 10);
     tft->print(text);
 }

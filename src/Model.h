@@ -15,17 +15,18 @@ public:
         float humidity;
     };
 
+    String lastTimeText;
+
     bool isTimeForNewReading(unsigned long now);
-
-    //void newReading(unsigned long when, float temperature, float humidity);
-
+    bool isTimeForNtpServerSync(unsigned long now);
     bool didJustChange(unsigned long when, float temperature, float humidity);
-
+    bool didTimeTextChange(int month, int day, int weekday, int hour, int minute);
     bool isCold();
 
 private:
     SensorReading lastReading;
-
+    unsigned long lastSyncedTimeWithNtpServer;
+    
     const float tempDiff = 0.05f;
     const float humDiff = 0.5f;
 };

@@ -1,17 +1,8 @@
 #include "main.h"
 
-Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC);
-Adafruit_STMPE610 touchScreen = Adafruit_STMPE610(STMPE_CS);
-DHT dht(DHTPIN, DHTTYPE);
-
-View* view;
-Model* model;
-
 void setup() {
     // initialize digital pin LED_BUILTIN as an output.
     pinMode(13, OUTPUT);
-
-    
 
     Serial.begin(115200);
     while (!Serial) {
@@ -41,22 +32,21 @@ void setup() {
     view->refresh();
 
     dht.begin();
+
+    // wifi
+    Serial.print("Connecting to ");
+    Serial.println(ssid);
+    WiFi.begin(ssid, password);
+    while (WiFi.status() != WL_CONNECTED) {
+         delay(500);
+         Serial.print(".");
+    }
+
+    // initialise NTP and time library
+    ntpUDP.begin(localPort);
+    time_t t = getNtpTime();
+    setTime(t);   
 }
-
-void onClicked(short direction, unsigned long diff) {
-    Serial.print("CLICKED ");
-    Serial.println(direction);
-    Serial.print("  diff= ");
-    Serial.println(diff);
-
-    model->setPointTemperature = model->setPointTemperature + direction;
-
-    view->refresh();
-}
-
-//void readSensor() {
-//     model->newReading(millis(), dht.readTemperature(false), dht.readHumidity());
-// }
 
 // the loop function runs over and over again forever
 void loop() {
@@ -64,13 +54,34 @@ void loop() {
     // check every second and refresh if changed
     if(model->isTimeForNewReading(millis())) {
         Serial.println(" check sensor... ");
-        // read sensor
-        if(model->didJustChange(millis(), dht.readTemperature(false), dht.readHumidity())) {
+        // read sensor and check time
+        if(model->didJustChange(millis(), dht.readTemperature(false), dht.readHumidity())
+            || model->didTimeTextChange(month(), day(), weekday(), hour(), minute())) {
+
             view->refresh();
-            Serial.println("reading changed");
+            Serial.println("reading or time changed");
+        }
+
+        // Serial.print("TIME: "); 
+        // Serial.print(hour()); 
+        // Serial.print(":");
+        // Serial.print(minute());  
+        // Serial.print(":");
+        // Serial.println(second()); 
+
+
+    }
+
+    // periodically sync time with NTP server
+    if(model->isTimeForNtpServerSync(millis())) {
+        time_t t = getNtpTime();
+        if(t > 0) {
+            setTime(t);
+            Serial.println("updated time"); 
         }
     }
 
+    // process touches
     while(!touchScreen.bufferEmpty()) {
         TS_Point point = touchScreen.getPoint();
 
@@ -95,4 +106,67 @@ void loop() {
     //delay(250);
     //digitalWrite(LED_BUILTIN, LOW);
     //delay(250);
+}
+
+void onClicked(short direction, unsigned long diff) {
+    Serial.print("CLICKED ");
+    Serial.println(direction);
+    Serial.print("  diff= ");
+    Serial.println(diff);
+
+    model->setPointTemperature = model->setPointTemperature + direction;
+
+    view->refresh();
+}
+
+time_t getNtpTime() {
+  IPAddress ntpServerIP; // NTP server's ip address
+
+  while (ntpUDP.parsePacket() > 0) ; // discard any previously received packets
+  Serial.println("Transmit NTP Request");
+  // get a random server from the pool
+  WiFi.hostByName(ntpServerName, ntpServerIP);
+  Serial.print(ntpServerName);
+  Serial.print(": ");
+  Serial.println(ntpServerIP);
+  sendNTPpacket(ntpServerIP);
+  uint32_t beginWait = millis();
+  while (millis() - beginWait < 1500) {
+    int size = ntpUDP.parsePacket();
+    if (size >= NTP_PACKET_SIZE) {
+      Serial.println("Receive NTP Response");
+      ntpUDP.read(packetBuffer, NTP_PACKET_SIZE);  // read packet into the buffer
+      unsigned long secsSince1900;
+      // convert four bytes starting at location 40 to a long integer
+      secsSince1900 =  (unsigned long)packetBuffer[40] << 24;
+      secsSince1900 |= (unsigned long)packetBuffer[41] << 16;
+      secsSince1900 |= (unsigned long)packetBuffer[42] << 8;
+      secsSince1900 |= (unsigned long)packetBuffer[43];
+      return secsSince1900 - 2208988800UL + timeZone * SECS_PER_HOUR;
+    }
+  }
+  Serial.println("No NTP Response :-(");
+  return 0; // return 0 if unable to get the time
+}
+
+// send an NTP request to the time server at the given address
+void sendNTPpacket(IPAddress &address) {
+  // set all bytes in the buffer to 0
+  memset(packetBuffer, 0, NTP_PACKET_SIZE);
+  // Initialize values needed to form NTP request
+  // (see URL above for details on the packets)
+  packetBuffer[0] = 0b11100011;   // LI, Version, Mode
+  packetBuffer[1] = 0;     // Stratum, or type of clock
+  packetBuffer[2] = 6;     // Polling Interval
+  packetBuffer[3] = 0xEC;  // Peer Clock Precision
+  // 8 bytes of zero for Root Delay & Root Dispersion
+  packetBuffer[12] = 49;
+  packetBuffer[13] = 0x4E;
+  packetBuffer[14] = 49;
+  packetBuffer[15] = 52;
+  // all NTP fields have been given values, now
+  // you can send a packet requesting a timestamp:
+  ntpUDP.beginPacket(address, 123); //NTP requests are to port 123
+  ntpUDP.write(packetBuffer, NTP_PACKET_SIZE);
+  ntpUDP.endPacket();
 }

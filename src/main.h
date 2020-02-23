@@ -37,6 +37,9 @@ DHT dht(DHTPIN, DHTTYPE);
 // NTP and UDP stuff
 WiFiUDP ntpUDP;
 static const char ntpServerName[] = "uk.pool.ntp.org";
+
+//TODO - BST starts on last sunday in march and ends on last sunday in october
+
 const int timeZone = 1; // BST
 unsigned int localPort = 8888; // local port to listen for UDP packets
 const int NTP_PACKET_SIZE = 48; // NTP time is in the first 48 bytes of message
@@ -52,9 +55,14 @@ Model* model;
 // ---- main function prototypes 
 
 void onClicked(short direction, unsigned long diff);
-
 void readSensor();
-
+wl_status_t connectWiFi();
 time_t getNtpTime();
-
 void sendNTPpacket(IPAddress &address);
+int lastSunday(int y, int forMonth);
+bool isBST(time_t t);
+void scanWifi();
+
+const char* wifiStatusText(wl_status_t status);
+void WiFiEvent(WiFiEvent_t event);
+void WiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info);

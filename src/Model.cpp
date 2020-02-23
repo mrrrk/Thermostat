@@ -29,8 +29,8 @@ const char dayName5[] PROGMEM = "Fri";
 const char dayName6[] PROGMEM = "Sat";
 const char dayName7[] PROGMEM = "Sun";
 const PROGMEM char * const PROGMEM dayNames[] = {
-    dayName0, dayName1, dayName2, dayName3,
-    dayName4, dayName5, dayName6, dayName7
+    dayName0, dayName7,dayName1, dayName2, dayName3,
+    dayName4, dayName5, dayName6
 };
 
 bool Model::isTimeForNewReading(unsigned long now) {
